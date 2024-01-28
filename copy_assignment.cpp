@@ -1,4 +1,4 @@
-#include <bits/stdc++.h>
+#include <iostream>
 #include "Resource.h"
 
 int main()
@@ -14,6 +14,7 @@ int main()
     r2 = r1;
 
     r1.print();
+    r2.print();
 
     return 0;
 } // end main

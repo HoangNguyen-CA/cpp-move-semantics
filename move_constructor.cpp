@@ -10,7 +10,7 @@ int main()
         r1[i] = i;
     }
 
-    Resource r2 = r1;
+    Resource r2{std::move(r1)};
 
     r1.print();
     r2.print();

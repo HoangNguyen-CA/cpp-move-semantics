@@ -1,5 +1,4 @@
 #include <iostream>
-
 #include "Resource.h"
 
 Resource::Resource()
