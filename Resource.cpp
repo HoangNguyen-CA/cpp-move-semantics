@@ -30,21 +30,16 @@ Resource::Resource(const Resource &r)
     std::copy(r.m_data, r.m_data + m_size, m_data);
 }
 
-Resource::Resource(Resource &&r)
+Resource::Resource(Resource &&r) : Resource()
 {
     std::cout << "Resource move constructor" << std::endl;
-    m_size = r.m_size;
-    m_data = r.m_data;
-    r.m_size = 0;
-    r.m_data = nullptr;
+    swap(*this, r);
 }
 
 Resource &Resource::operator=(Resource r)
 {
     std::cout << "Resource assignment operator" << std::endl;
-
     swap(*this, r);
-
     return *this;
 }
 
