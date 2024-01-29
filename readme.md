@@ -6,10 +6,21 @@
 
 This is a small project that I built to get a deeper insight into C++ optimizations. In this readme, I documented my findings about the topic.
 
+## Table of Contents
+- [Introduction](#introduction)
+- [Resource Class](#resource-class)
+	 -  [Rule of 5](#rule-of-5)
+	 -  [Rule of 4.5](#rule-of-4.5)
+- [Q&A](#q-and-a)
+- [Program Outputs And Explanation](#program-outputs-and-explanation)
+	- [Constructor Outputs](#constructor-outputs) 
+	- [Assignment Outputs](#assignment-outputs) 
+
+
 ## Introduction
 Move semantics is a built-in feature of C++ to handle efficient transfer of ownership. It is an alternative to copying an object and should be used when the cost of copying is high. 
 
-## Resource class
+## Resource Class
 
 In my examples, I use a Resource class, which dynamically allocates an array of integers and holds a pointer to the start of the array. 
 
@@ -100,12 +111,12 @@ If the object is copied, we will steal/swap from the copied resource, which will
 Thanks to the swap function, we can also redefine the move constructor:
 
 ```cpp
-Resource::Resource(Resource  &&r) : Resource() // default initialize
+Resource::Resource(Resource  &&other)
 {	
-	swap(*this, r);
+	swap(*this, other);
 }
 ```
-Since we default initialize our resource, it is in a valid state, so we can swap it with the moved resource. 
+In the move constructor, we swap `*this` with `other`, note that `*this` is uninitialized, but being uninitialized is considered to be in a valid state. **If we want `other` to be left in a default state, we can call the default constructor before the swap.** Normally, it is not advised to do this since `other` is often not used after the move.
 
 This simplifies our code greatly:
 * Custom destructor logic = 1
@@ -114,7 +125,7 @@ This simplifies our code greatly:
 * Swap assignment logic = 4
 * Swap helper = 4.5
 
-## Q&A
+## Q and A
 
 Q: When are the default move methods defined? 
 A: When no destructor is defined, and no copy methods are defined, then the default move methods will be defined.
@@ -127,4 +138,61 @@ A: Custom logic should only be used if the class manages dynamic heap memory.
 
 Q: When do we ever need to define an explicit move assignment instead of a shared one (rule of 4.5)
 A: When we want the type to be move-only, we need to disable copy assignment. 
+
+## Program Outputs And Explanation
+
+Two resources are declared to showcase different copy/move mechanics. R1 starts off with a length of 10 and has integers 0->9. More details are provided in the source code.
+
+### Constructor outputs
+**copy_constructor.cpp output**
+```
+Resource constructor // Resource r1 initialized with 0-9
+Resource copy constructor // Resource r2 = r1;
+Resource data: 0 1 2 3 4 5 6 7 8 9 // r1 data 
+Resource data: 0 1 2 3 4 5 6 7 8 9 // r2 data
+Resource destructor // r1 destructor
+Resource destructor // r2 destructor
+```
+pretty self explanatory, calling `Resource r2 = r1;` calls the copy constructor instead of the default constructor, which deep copies the contents of r1 into r2.
+ 
+**move_constructor.cpp output:**
+```
+Resource constructor 
+Resource move constructor // Resource r2 = std::move(r1);
+Resource data: // r1 left in empty state
+Resource data: 0 1 2 3 4 5 6 7 8 9 // r2 has r1's data
+Resource destructor
+Resource destructor
+```
+Similar to the copy constructor, but the move constructor causes r2 to steal r1's data. As shown in the output, r1 is left in an empty state while r2 has control of r1's original data.
+
+### Assignment outputs
+
+**copy_assignment.cpp output:**
+```
+Resource constructor 
+Resource default constructor // Resource r2; 
+Resource copy constructor // temporary variable created
+Resource assignment operator
+Resource destructor // temporary variable destroyed
+Resource data: 0 1 2 3 4 5 6 7 8 9 
+Resource data: 0 1 2 3 4 5 6 7 8 9 
+Resource destructor
+Resource destructor
+```
+When we perform `r2 = r1`, a copy of `r1` is passed into the `operator=(Resource r)`, which is initialized with the copy constructor. when `operator=`completes, the copy is destroyed, resulting in a third destructor.
+
+**move_assignment.cpp output:**
+```
+Resource constructor
+Resource default constructor // Resource r2;
+Resource move constructor // temporary variable created
+Resource assignment operator
+Resource destructor // temporary variable destroyed
+Resource data: 
+Resource data: 0 1 2 3 4 5 6 7 8 9 
+Resource destructor
+Resource destructor
+```
+Similar to the previous example but the temporary variable is created using the move constructor instead of the copy constructor, which is why `r2` steals `r1`'s data.
 
