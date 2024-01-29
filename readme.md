@@ -144,7 +144,7 @@ A: When we want the type to be move-only, we need to disable copy assignment.
 Two resources are declared to showcase different copy/move mechanics. `r1` starts off with a length of 10 and has integers 0->9. More details are provided in the source code.
 
 ### Constructor outputs
-**copy_constructor.cpp output**
+**copy_constructor.cpp output:**
 ```
 Resource constructor // Resource r1 initialized with 0-9
 Resource copy constructor // Resource r2 = r1;
