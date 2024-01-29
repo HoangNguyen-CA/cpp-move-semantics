@@ -1,12 +1,9 @@
-
-
 # CPP Move Semantics
-
-  
 
 This is a small project that I built to get a deeper insight into C++ optimizations. In this readme, I documented my findings about the topic.
 
 ## Table of Contents
+
 - [Introduction](#introduction)
 - [Resource Class](#resource-class)
 	 -  [Rule of 5](#rule-of-5)
@@ -18,6 +15,7 @@ This is a small project that I built to get a deeper insight into C++ optimizati
 
 
 ## Introduction
+
 Move semantics is a built-in feature of C++ to handle efficient transfer of ownership. It is an alternative to copying an object and should be used when the cost of copying is high. 
 
 ## Resource Class
@@ -28,9 +26,9 @@ Since we need to clean up the dynamic data, we need a destructor to clean up the
 
  ```cpp
 Resource::~Resource(){
-	if (m_data  !=  nullptr)
+	if (m_data != nullptr)
 	{
-		delete[]  m_data;
+		delete[] m_data;
 	}
 }
 ```
@@ -56,10 +54,10 @@ Resource r2 = r1; // shallow copy r1 int*, both resources have same pointer
  By defining a copy constructor/copy assignment, we can deep copy the resource so that both of the objects don't point to the same location:
 ```cpp
 // Example of copy constructor
-Resource::Resource(const  Resource  &r)
+Resource::Resource(const Resource &r)
 {
-	m_size  =  r.m_size;
-	m_data  =  new  int[m_size]; // allocates own memory instead of shallow copy
+	m_size = r.m_size;
+	m_data = new  int[m_size]; // allocates own memory instead of shallow copy
 }
 ```
 Notice that the cost of copying is high since we have to allocate an array of size n for every copy. That is why we should also define a move constructor/move assignment. 
@@ -70,7 +68,7 @@ A move implicitly happens when the item being passed into a function is an rvalu
 
 ```cpp
 // Example of move constructor, we see that the resource steals the m_data pointer from the other while leaving the 'other' object in an empty state. No allocation is needed.
-Resource(Resource&& other) {
+Resource::Resource(Resource&& other) {
  m_data = other.m_data; 
  m_size = other.m_size; 
  // Reset the source 
@@ -85,7 +83,7 @@ The copy assignment and move assignment operators are defined similarly.
 We can make improvements on the rule of 5 by using the copy-swap idiom. We need to define a swap method in the class to handle member wise swapping (std::swap is not suitable since it causes infinite recursion with copy methods). 
 
 ```cpp
-void  Resource::swap(Resource  &a, Resource  &b)
+void Resource::swap(Resource &a, Resource &b)
 {
 	std::swap(a.m_size, b.m_size);
 	std::swap(a.m_data, b.m_data);
@@ -95,7 +93,7 @@ void  Resource::swap(Resource  &a, Resource  &b)
 Thanks to this swap method, we can combine the copy assignment and move assignment overloads into one method.
 
 ```cpp
-Resource  &Resource::operator=(Resource  r)
+Resource &Resource::operator=(Resource r)
 {
 	swap(*this, r);
 	return  *this;
@@ -111,7 +109,7 @@ If the object is copied, we will steal/swap from the copied resource, which will
 Thanks to the swap function, we can also redefine the move constructor:
 
 ```cpp
-Resource::Resource(Resource  &&other)
+Resource::Resource(Resource &&other)
 {	
 	swap(*this, other);
 }
