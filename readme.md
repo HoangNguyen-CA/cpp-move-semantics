@@ -34,6 +34,7 @@ Resource::~Resource(){
 ```
 
 ### Rule of 5
+
 By defining a destructor, adherence to the Rule of 5 becomes necessary. This rule prescribes a set of methods, implying that when one is specified, all five methods should be defined.
 
 * Destructor
@@ -78,6 +79,7 @@ Resource::Resource(Resource&& other) {
 ```
 
 The copy assignment and move assignment operators are defined similarly.
+
 ### Rule of 4.5
 
 We can make improvements on the rule of 5 by using the copy-swap idiom. We need to define a swap method in the class to handle member wise swapping (std::swap is not suitable since it causes infinite recursion with copy methods). 
@@ -142,7 +144,9 @@ A: When we want the type to be move-only, we need to disable copy assignment.
 Two resources are declared to showcase different copy/move mechanics. `r1` starts off with a length of 10 and has integers 0->9. More details are provided in the source code.
 
 ### Constructor outputs
+
 **copy_constructor.cpp output:**
+
 ```
 Resource constructor // Resource r1 initialized with 0-9
 Resource copy constructor // Resource r2 = r1;
@@ -154,6 +158,7 @@ Resource destructor // r2 destructor
 pretty self explanatory, calling `Resource r2 = r1;` calls the copy constructor instead of the default constructor, which deep copies the contents of `r1` into `r2`.
  
 **move_constructor.cpp output:**
+
 ```
 Resource constructor 
 Resource move constructor // Resource r2 = std::move(r1);
@@ -167,6 +172,7 @@ Similar to the copy constructor, but the move constructor causes `r2` to steal `
 ### Assignment outputs
 
 **copy_assignment.cpp output:**
+
 ```
 Resource constructor 
 Resource default constructor // Resource r2; 
@@ -181,6 +187,7 @@ Resource destructor
 When we perform `r2 = r1`, a copy of `r1` is passed into the `operator=(Resource r)`, which is initialized with the copy constructor. when `operator=`completes, the copy is destroyed, resulting in a third destructor.
 
 **move_assignment.cpp output:**
+
 ```
 Resource constructor
 Resource default constructor // Resource r2;
