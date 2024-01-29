@@ -141,7 +141,7 @@ A: When we want the type to be move-only, we need to disable copy assignment.
 
 ## Program Outputs And Explanation
 
-Two resources are declared to showcase different copy/move mechanics. R1 starts off with a length of 10 and has integers 0->9. More details are provided in the source code.
+Two resources are declared to showcase different copy/move mechanics. `r1` starts off with a length of 10 and has integers 0->9. More details are provided in the source code.
 
 ### Constructor outputs
 **copy_constructor.cpp output**
@@ -153,7 +153,7 @@ Resource data: 0 1 2 3 4 5 6 7 8 9 // r2 data
 Resource destructor // r1 destructor
 Resource destructor // r2 destructor
 ```
-pretty self explanatory, calling `Resource r2 = r1;` calls the copy constructor instead of the default constructor, which deep copies the contents of r1 into r2.
+pretty self explanatory, calling `Resource r2 = r1;` calls the copy constructor instead of the default constructor, which deep copies the contents of `r1` into `r2`.
  
 **move_constructor.cpp output:**
 ```
@@ -164,7 +164,7 @@ Resource data: 0 1 2 3 4 5 6 7 8 9 // r2 has r1's data
 Resource destructor
 Resource destructor
 ```
-Similar to the copy constructor, but the move constructor causes r2 to steal r1's data. As shown in the output, r1 is left in an empty state while r2 has control of r1's original data.
+Similar to the copy constructor, but the move constructor causes `r2` to steal `r1`'s data. As shown in the output, `r1` is left in an empty state while `r2` has control of `r1`'s original data.
 
 ### Assignment outputs
 
